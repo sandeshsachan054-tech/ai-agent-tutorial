@@ -5,3 +5,5 @@ langchain-anthropic
 python-dotenv
 pydantic
 duckduckgo-search
+fastapi
+uvicorn[standard]
