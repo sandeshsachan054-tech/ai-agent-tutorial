@@ -14,7 +14,7 @@ An autonomous AI Research Agent with a Next.js interactive frontend and Python b
 ## ⚙️ Setup Instructions
 
 ### 1. Backend Setup
-\\\`bash
+```bash
 # Create virtual environment
 python -m venv venv
 venv\Scripts\activate
@@ -24,13 +24,14 @@ pip install -r requirements.txt
 
 # Run backend
 python api.py
-\\\`
+uvicorn api:app --reload --port 8000
+```
 
 ### 2. Frontend Setup
-\\\`bash
+```bash
 cd frontend
 npm install
 npm run dev
-\\\`
+```
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
