@@ -7,3 +7,4 @@ pydantic
 duckduckgo-search
 fastapi
 uvicorn[standard]
+reportlab
