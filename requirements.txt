@@ -8,5 +8,5 @@ duckduckgo-search
 fastapi
 uvicorn[standard]
 reportlab
-lanchain-groq
+langchain-groq
 langchain-openai
