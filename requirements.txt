@@ -5,6 +5,7 @@ langchain-anthropic
 python-dotenv
 pydantic
 duckduckgo-search
+ddgs
 fastapi
 uvicorn[standard]
 reportlab
