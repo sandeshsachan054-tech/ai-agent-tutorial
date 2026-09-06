@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
+const API_BASE_URL = "https://ai-agent-tutorial-2vub.onrender.com";
 interface ChatMessage {
   role: "user" | "assistant";
   content: string;
@@ -53,7 +53,7 @@ export default function DeepResearchDashboard() {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/history");
+      const res = await fetch(`${API_BASE_URL}/api/history`);
       const data = await res.json();
       setHistory(data);
     } catch (err) {
@@ -83,7 +83,7 @@ export default function DeepResearchDashboard() {
     let assistantResponseText = "";
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/research/stream", {
+      const response = await fetch(`${API_BASE_URL}/api/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -183,7 +183,7 @@ export default function DeepResearchDashboard() {
     if (!lastAssistant || !lastAssistant.content) return;
 
     try {
-      const endpoint = "http://127.0.0.1:8000/api/export/" + format;
+      const endpoint = `${API_BASE_URL}/api/export/${format}`;
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
