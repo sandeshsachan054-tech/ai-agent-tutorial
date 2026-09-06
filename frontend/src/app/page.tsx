@@ -50,16 +50,18 @@ export default function DeepResearchDashboard() {
   // 1. Mic logic (Speech-to-Text)
   const handleVoiceInput = () => {
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Voice recognition is not supported in this browser.");
+      alert("Voice recognition is not supported in this browser. Please use Chrome.");
       return;
     }
 
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.interimResults = false;
+    recognition.continuous = false;
 
     if (isListening) {
       recognition.stop();
@@ -67,18 +69,33 @@ export default function DeepResearchDashboard() {
       return;
     }
 
-    recognition.onstart = () => setIsListening(true);
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
+      setFollowUpInput(transcript);
       setQuery(transcript);
       setIsListening(false);
     };
 
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      if (event.error === "not-allowed") {
+        alert("Microphone permission blocked. Please allow mic access in browser settings.");
+      }
+    };
 
-    recognition.start();
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    try {
+      recognition.start();
+    } catch (err) {
+      setIsListening(false);
+    }
   };
 
   // 2. Audio Listen logic (Text-to-Speech)
