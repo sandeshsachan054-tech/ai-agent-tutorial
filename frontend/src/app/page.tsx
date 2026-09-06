@@ -83,7 +83,7 @@ export default function DeepResearchDashboard() {
     let assistantResponseText = "";
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/stream`, {
+      const response = await fetch(`${API_BASE_URL}/api/research/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
