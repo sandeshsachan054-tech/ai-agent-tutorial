@@ -15,6 +15,10 @@ import {
   Code2,
   Newspaper,
   Compass,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -40,7 +44,67 @@ export default function DeepResearchDashboard() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [followUpInput, setFollowUpInput] = useState("");
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  // 1. Mic logic (Speech-to-Text)
+  const handleVoiceInput = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+      return;
+    }
+
+    recognition.onstart = () => setIsListening(true);
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setQuery(transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+
+    recognition.start();
+  };
+
+  // 2. Audio Listen logic (Text-to-Speech)
+  const handleSpeak = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Text-to-speech not supported in this browser.");
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const cleanText = text.replace(/[*#_`]/g, "");
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -339,8 +403,27 @@ export default function DeepResearchDashboard() {
                           >
                             <Download className="w-3.5 h-3.5" /> PDF
                           </button>
-                        </div>
+                        
+                        <button
+                  type="button"
+                  onClick={() => handleSpeak(m.content)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-xs font-medium text-slate-300 transition-colors border border-slate-700"
+                >
+                  {isSpeaking ? (
+                    <>
+                      <VolumeX className="w-3.5 h-3.5 text-red-400" />
+                      <span>Stop</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Listen</span>
+                    </>
+                  )}
+                </button>
                       </div>
+                    </div>  
+
 
                       {/* Source Chips */}
                       {m.sources && m.sources.length > 0 && (
@@ -386,6 +469,19 @@ export default function DeepResearchDashboard() {
                     placeholder="Ask a follow-up question on this research..."
                     className="w-full bg-transparent px-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none"
                   />
+                  <button
+                  
+                    type="button"
+                    onClick={handleVoiceInput}
+                    className={`p-2 rounded-lg mr-1 transition-all ${
+                      isListening
+                        ? "bg-red-500 text-white animate-pulse"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                    title={isListening ? "Listening..." : "Voice Input"}
+                  >
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    </button>
                   <button
                     type="submit"
                     disabled={loading || !followUpInput.trim()}
